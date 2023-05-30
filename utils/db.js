@@ -4,7 +4,7 @@ const { MongoClient } = require('mongodb');
  */
 
 class DBClient {
-    /**
+  /**
    * Creates a new DBClient instance.
    */
   constructor() {
