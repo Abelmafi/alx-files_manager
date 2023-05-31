@@ -1,32 +1,20 @@
-const dbClient = require('../utils/db');
-const redisClient = require('../utils/redis');
-/**
- * defining appcontroller
- */
+/* eslint-disable import/no-named-as-default */
+import redisClient from '../utils/redis';
+import dbClient from '../utils/db';
 
-
-class AppController {
-  /**
-   * Checks if this client's connection to the MongoDB server is active
-   */
-  static async getStatus(req, res) {
-    const redisStatus = await redisClient.isAlive();
-    const dbStatus = await dbClient.isAlive();
-
-    if (redisStatus && dbStatus) {
-      res.status(200).json({ redis: true, db: true });
-    } else {
-      res.status(500).json({ redis: false, db: false});
-    }
+export default class AppController {
+  static getStatus(req, res) {
+    res.status(200).json({
+      redis: redisClient.isAlive(),
+      db: dbClient.isAlive(),
+    });
   }
-  /**
-   * Checks if this client's connection to the MongoDB server is active
-   */
-  static async getStats(req, res) {
-    const usersCount = await dbClient.nbUsers();
-    const filesCount = await dbClient.nbFiles();
 
-    res.status(200).json({ users: usersCount, files: filesCount });
+  static getStats(req, res) {
+    Promise.all([dbClient.nbUsers(), dbClient.nbFiles()])
+      .then(([usersCount, filesCount]) => {
+        res.status(200).json({ users: usersCount, files: filesCount });
+      });
   }
 }
 
